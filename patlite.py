@@ -34,7 +34,7 @@ class Patlite:
 
     @classmethod
     def get_instance(cls):
-        if not _unique_instance:
+        if not cls._unique_instance:
             cls._unique_instance = cls.__internal_new__()
         
         return cls._unique_instance
