@@ -20,11 +20,15 @@ class Patlite:
 
     _led = {
         'red': OFF,
-        'yello': OFF,
+        'yellow': OFF,
         'green': OFF,
         'blue': OFF,
         'white': OFF,
     }
+
+    _buzzer = STOP
+
+    _auto_update = True
 
     '''
     シングルトーンパターンで設計
@@ -58,7 +62,10 @@ class Patlite:
 
     def set_led(self, led_type, value):
         self._led[led_type] = value
+        if self._auto_update:
+            self.commit()
 
+    '''
     properties_dict = {
         "RED": 'red', 
         "YELLOW": 'yellow',
@@ -66,7 +73,7 @@ class Patlite:
         "BLUE": 'blue',
         "WHITE": 'white',
     }
-    '''
+    
     for k_upper,v_lower in properties_dict.items():
         self.__dict__[k_upper] = property(lambda self: self._led[v_lower],
                                           lambda self, value: self.set_led(v_lower, value))
@@ -96,7 +103,6 @@ class Patlite:
                 print("[err] Cannot connect to patlite. Recheck for address or port.")
                 return
             
-            # s.sendall(b'\x57\xc0\x2d\x9b\xdb\x93')
             s.sendall(b'\x58\x58\x53\x00\x00\x06' + self._led['red'] + self._led['yellow'] + self._led['green'] 
                 + b'\x00\x00' + self._buzzer)
             data = s.recv(1024)
