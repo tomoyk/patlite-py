@@ -1,9 +1,9 @@
 import socket
 
 class Patlite:
-
-    HOST = '192.168.0.169'
-    PORT = 10000
+    # dest
+    _host = '192.168.10.1'
+    _port = 10000
 
     # light
     OFF = b'\x00'
@@ -18,6 +18,14 @@ class Patlite:
     TINY = b'\x03'  # -_-_____-_-_____
     START = b'\x04' # ----------------
 
+    _led = {
+        'red': OFF,
+        'yello': OFF,
+        'green': OFF,
+        'blue': OFF,
+        'white': OFF,
+    }
+
     '''
     シングルトーンパターンで設計
     http://www.denzow.me/entry/2018/01/28/171416
@@ -25,9 +33,9 @@ class Patlite:
     _unique_instance = None
 
     def __new__(self):
-        raise NotImplementedError('not permitted')
+        raise NotImplementedError('[err] not permitted')
 
-    # 内部からのインスタンス作成用
+    # create instance for internal class
     @classmethod
     def __internal_new__(cls):
         return super().__new__(cls)
@@ -38,12 +46,59 @@ class Patlite:
             cls._unique_instance = cls.__internal_new__()
         
         return cls._unique_instance
+
+
+    def set_dest(self, host, port):
+        if not(0 <= port <= 65535):
+            raise ValueError("[err] port must be set integer")
         
+        self._host = host
+        self._port = port
+
+
+    def set_led(self, led_type, value):
+        self._led[led_type] = value
+
+    properties_dict = {
+        "RED": 'red', 
+        "YELLOW": 'yellow',
+        "GREEN": 'green',
+        "BLUE": 'blue',
+        "WHITE": 'white',
+    }
+    '''
+    for k_upper,v_lower in properties_dict.items():
+        self.__dict__[k_upper] = property(lambda self: self._led[v_lower],
+                                          lambda self, value: self.set_led(v_lower, value))
+    '''
+    RED = property(lambda self: self._led['red'],
+                   lambda self, value: self.set_led('red', value))
+
+    YELLOW = property(lambda self: self._led['yellow'],
+                      lambda self, value: self.set_led('yellow', value))
+
+    GREEN = property(lambda self: self._led['green'],
+                     lambda self, value: self.set_led('green', value))
+    
+
+    def set_buzzer(self, value):
+        self._buzzer = value
+
+    BUZZER = property(lambda self: self._buzzer,
+                      lambda self, value: self.set_buzzer(value))
+    
+
     def commit(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((HOST, PORT))
+            try:
+                s.connect((self._host, self._port))
+            except OSError as e:
+                print("[err] Cannot connect to patlite. Recheck for address or port.")
+                return
+            
             # s.sendall(b'\x57\xc0\x2d\x9b\xdb\x93')
-            s.sendall(b'\x58\x58\x53\x00\x00\x06' + b'\x03\x02\x01\x00\x00\x00')
+            s.sendall(b'\x58\x58\x53\x00\x00\x06' + self._led['red'] + self._led['yellow'] + self._led['green'] 
+                + b'\x00\x00' + self._buzzer)
             data = s.recv(1024)
             print('Received', repr(data))
 
