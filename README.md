@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
 |製品区分   |製品区分   |空き   |データサイズ   |データサイズ   |データ部   |
 |---        |---        |---    |---            |---            |---        |
-|0x58       |0x58       |0x53   |0x00           |0x06           |           |
+|0x58       |0x58     対応   |0x53   |0x00           |0x06           |           |
 
 データ部(6byte):
 
@@ -61,3 +61,10 @@ if __name__ == '__main__':
 ```
 0x58 0x58 0x53 0x00 0x06 0x01 0x01 0x01 0x01 0x01 0x01
 ```
+
+## 参考サイト
+
+chibieggさんがPython2系で書かれていたソースを一部、参考にさせていただきました。🙏
+
+- [Pythonでシングルトン(Singleton)を実装してみる - [Dd]enzow(ill)? with DB and Python](http://www.denzow.me/entry/2018/01/28/171416)
+- [chibiegg/pytlite: Control Patlite Signal Tower from Python](https://github.com/chibiegg/pytlite)
