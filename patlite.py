@@ -63,8 +63,8 @@ class Patlite:
         return self._sensor
 
     def reset_status(self):
-        for k,v in self._sensor:
-            self._sensor[k] = p.OFF
+        for k in self._sensor:
+            self._sensor[k] = self.OFF
 
     def commit(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

@@ -1,5 +1,6 @@
 from bottle import route, request, response, template, run, error
 from patlite import Patlite as p
+import time
 
 @route('/patlite')
 def index():
@@ -19,13 +20,24 @@ def index():
     pat = p.get_instance()
     pat.set_dest('192.168.0.169', 10000)
 
+    # change mode
     for name in sensors:
         req_value = int(params[name])
         pat.set_status(name, sensors[name][req_value])
-
     pat.commit()
 
-    return None
+    # delay
+    if not params['timeout']:
+        params['timeout'] = 5
+    else:
+        params['timeout'] = int(params['timeout'])
+    time.sleep(params['timeout'])
+
+    # clear mode
+    pat.reset_status()
+    pat.commit()
+
+    return 'Success to execute commands'
 
 @error(404)
 def error404(error):

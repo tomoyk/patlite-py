@@ -11,7 +11,7 @@ def main():
     p.commit()
     
     ''' Reset
-    p.clear
+    p.reset_status()
     p.commit()
     '''
 
