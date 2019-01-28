@@ -10,14 +10,18 @@ def index():
             "buzzer": [p.STOP, p.START, p.SHORT, p.LONG, p.TINY],
             }
     params = {}
-    params['red'] = request.query.red # 0,1,2...
-    params['yellow'] = request.query.yellow # 0,1,2...
-    params['green'] = request.query.green
+    params['red'] = request.query.red
+    params['yellow'] = request.query.yellow
+    params['green'] = request.query.green 
     params['buzzer'] = request.query.buzzer
     params['timeout'] = request.query.timeout
     
     pat = p.get_instance()
-    pat.set_dest('192.168.5.100', 10000)
+    pat.set_dest('192.168.0.169', 10000)
+
+    for key,value in params.items():
+        pat.set_status(key, sensors[key][value])
+
     '''
     sensors2 = {
             "red": pat.RED,

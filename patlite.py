@@ -1,34 +1,31 @@
 import socket
 
 class Patlite:
-    # dest
+    # default dest
     _host = '192.168.10.1'
     _port = 10000
 
-    # light
+    # light attributes
     OFF = b'\x00'
     ON = b'\x01'
     BLINK1 = b'\x02' # ----____----____
     BLINK2 = b'\x03' # -_-_____-_-_____
 
-    # buzzer
-    STOP = b'\x00'  
+    # buzzer attributes
     SHORT = b'\x01' # --__--__--__--__
     LONG = b'\x02'  # ----____----____
     TINY = b'\x03'  # -_-_____-_-_____
-    START = b'\x04' # ----------------
+    BEEP = b'\x04' # ----------------
 
-    _led = {
+    _sensor = {
         'red': OFF,
         'yellow': OFF,
         'green': OFF,
         'blue': OFF,
         'white': OFF,
+        'buzzer': OFF,
     }
 
-    _buzzer = STOP
-
-    _auto_update = True
 
     '''
     シングルトーンパターンで設計
@@ -59,41 +56,15 @@ class Patlite:
         self._host = host
         self._port = port
 
-
-    def set_led(self, led_type, value):
-        self._led[led_type] = value
-        if self._auto_update:
-            self.commit()
-
-    '''
-    properties_dict = {
-        "RED": 'red', 
-        "YELLOW": 'yellow',
-        "GREEN": 'green',
-        "BLUE": 'blue',
-        "WHITE": 'white',
-    }
+    def set_status(self, name, value):
+        self._sensor[name] = value
     
-    for k_upper,v_lower in properties_dict.items():
-        self.__dict__[k_upper] = property(lambda self: self._led[v_lower],
-                                          lambda self, value: self.set_led(v_lower, value))
-    '''
-    RED = property(lambda self: self._led['red'],
-                   lambda self, value: self.set_led('red', value))
+    def get_status(self):
+        return self._sensor
 
-    YELLOW = property(lambda self: self._led['yellow'],
-                      lambda self, value: self.set_led('yellow', value))
-
-    GREEN = property(lambda self: self._led['green'],
-                     lambda self, value: self.set_led('green', value))
-    
-
-    def set_buzzer(self, value):
-        self._buzzer = value
-
-    BUZZER = property(lambda self: self._buzzer,
-                      lambda self, value: self.set_buzzer(value))
-    
+    def reset_status(self):
+        for k,v in self._sensor:
+            self._sensor[k] = p.OFF
 
     def commit(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -103,8 +74,9 @@ class Patlite:
                 print("[err] Cannot connect to patlite. Recheck for address or port.")
                 return
             
-            s.sendall(b'\x58\x58\x53\x00\x00\x06' + self._led['red'] + self._led['yellow'] + self._led['green'] 
-                + b'\x00\x00' + self._buzzer)
+            dat = self._sensor
+            s.sendall(b'\x58\x58\x53\x00\x00\x06' + dat['red'] + dat['yellow'] 
+                + dat['green'] + dat['blue'] + dat['white'] + dat['buzzer'])
             data = s.recv(1024)
             print('Received', repr(data))
 
