@@ -1,4 +1,4 @@
-from bottle import route, request, response, template, run
+from bottle import route, request, response, template, run, error
 from patlite import Patlite as p
 
 @route('/patlite')
@@ -7,7 +7,7 @@ def index():
             "red": [p.OFF, p.ON, p.BLINK1, p.BLINK2],
             "yellow": [p.OFF, p.ON, p.BLINK1, p.BLINK2],
             "green": [p.OFF, p.ON, p.BLINK1, p.BLINK2],
-            "buzzer": [p.STOP, p.START, p.SHORT, p.LONG, p.TINY],
+            "buzzer": [p.OFF, p.BEEP, p.SHORT, p.LONG, p.TINY],
             }
     params = {}
     params['red'] = request.query.red
@@ -19,29 +19,20 @@ def index():
     pat = p.get_instance()
     pat.set_dest('192.168.0.169', 10000)
 
-    for key,value in params.items():
-        pat.set_status(key, sensors[key][value])
+    for name in sensors:
+        req_value = int(params[name])
+        pat.set_status(name, sensors[name][req_value])
 
-    '''
-    sensors2 = {
-            "red": pat.RED,
-            "yellow": pat.YELLOW,
-            "green": pat.GREEN,
-            "buzzer": pat.BUZZER,
-            }
-
-    for k,v in sensors2.items():
-        sensors[k][int(params[k])]
-
-    '''
-    pat.RED = sensors['red'][int(params['red'])]
-    pat.YELLOW = sensors['yellow'][int(params['yellow'])]
-    pat.GREEN = sensors['green'][int(params['green'])]
-    pat.BUZZER = sensors['buzzer'][int(params['buzzer'])]
-    # for k,v in params.items():
-    #     print(k, sensors[k][int(v)])
     pat.commit()
 
-    return template('<b>Hello World</b>!')
+    return None
+
+@error(404)
+def error404(error):
+    return 'Nothing here, sorry'
+
+@error(500)
+def error500(error):
+    return 'Internal error, sorry'
 
 run(host='localhost', port=8080)
