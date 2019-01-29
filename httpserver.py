@@ -18,7 +18,7 @@ def index():
     params['timeout'] = request.query.timeout
     
     pat = p.get_instance()
-    pat.set_dest('192.168.0.169', 10000)
+    pat.set_dest('192.168.10.1', 10000)
 
     # change mode
     for name in sensors:
@@ -47,4 +47,4 @@ def error404(error):
 def error500(error):
     return 'Internal error, sorry'
 
-run(host='localhost', port=8080)
+run(host='0.0.0.0', port=8080)

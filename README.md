@@ -19,21 +19,53 @@ def main():
     p = patlite.Patlite.get_instance()
     p.set_dest('192.168.0.169', 10000)
 
-    p.RED = p.BLINK1
-    p.YELLOW = p.BLINK2
-    p.GREEN = p.ON
-    p.BUZZER = p.STOP
-
+    p.set_status("red", p.ON)
+    p.set_status("yellow", p.BLINK1)
+    p.set_status("green", p.BLINK2)
+    p.set_status("buzzer", p.OFF)
     p.commit()
     
+    ''' Reset
+    p.reset_status()
+    p.commit()
+    '''
+
 
 if __name__ == '__main__':
     main()
 ```
 
 - 実装してあるLEDパターン: ON, OFF, BLINK1, BLINK2
-- 実装してあるブザーパターン: STOP, SHORT, LONG, TINY, START
+- 実装してあるブザーパターン: OFF, SHORT, LONG, TINY, BEEP
 - 対応プロトコル: TCPのみ
+
+## httpserver
+
+デフォルトで `192.168.10.1` の `8080` でHTTPサーバが起動します。
+
+エンドポイント: `http://yourhost/patlite`
+
+メソッド: GET
+
+パラメータ: 
+```
+green/red/yellow:
+- 1:点灯
+- 2:点滅パターン1
+- 3:点滅パターン2
+- 0:消灯
+buzzer:
+- 0:停止
+- 1:鳴動パターン4
+- 2:鳴動パターン1
+- 3:鳴動パターン2
+- 4:鳴動パターン3
+timeout:
+- 初期値: 5
+- 設定秒数が経過すると停止
+```
+
+リクエストの例: `http://yourhost:8080/patlite?red=1&yellow=2&green=3&buzzer=0&timeout=3`
 
 ## 実装/概要
 
